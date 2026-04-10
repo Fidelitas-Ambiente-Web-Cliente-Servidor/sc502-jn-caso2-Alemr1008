@@ -1,33 +1,39 @@
 $(function () {
-    let formLogin = $("#formLogin");
-    const urlBase = "index.php"
 
-    formLogin.on("submit", function (event) {
-        event.preventDefault();
-        let username = $("#username");
-        let password = $("#password");
+    console.log("auth.js cargado ✅");
 
-        if (username.val() === "" || password.val() === "") {
-            alert("Debe completar todos los campos");
-        } else {
-            $.post(urlBase,
-                {
-                    username: username.val(),
-                    password: password.val(),
-                    option: "login"
-                },
-                function (data, status) {
-                    data = JSON.parse(data);
-                    console.log(data);
-                    if(data.response == "00"){
-                        window.location = data.rol == 'admin' ? "index.php?page=admin" : "index.php?page=talleres";
-                    } else {
-                        alert(data.message)
-                    }
-                });
+    $('#formLogin').submit(function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-        }
-    })
+        const username = $('#username').val();
+        const password = $('#password').val();
 
+        console.log("Enviando login...");
 
-})
+        $.ajax({
+            url: '/sc502-jn-caso2-Alemr1008/index.php?page=login',
+            method: 'POST',
+
+            // 🔥 CAMBIO CLAVE
+            dataType: 'text',
+
+            data: {
+                username: username,
+                password: password
+            },
+
+            success: function (res) {
+                console.log("RESPUESTA RAW:");
+                console.log(res);
+            },
+
+            error: function (err) {
+                console.error("Error AJAX:", err);
+            }
+        });
+
+        return false;
+    });
+
+});

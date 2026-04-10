@@ -46,6 +46,93 @@
 
     <div id="mensaje"></div>
 
-    
+<script>
+$(document).ready(function () {
+
+    cargarSolicitudes();
+
+    //  Cargar solicitudes
+    function cargarSolicitudes() {
+        $.get('index.php?page=obtenerSolicitudes', function (data) {
+
+            let html = '';
+
+            if (data.length === 0) {
+                html = '<tr><td colspan="6">No hay solicitudes pendientes</td></tr>';
+            } else {
+                data.forEach(s => {
+                    html += `
+                        <tr>
+                            <td>${s.id}</td>
+                            <td>${s.nombre}</td>
+                            <td>${s.username}</td>
+                            <td>${s.usuario_id}</td>
+                            <td>${s.fecha_solicitud}</td>
+                            <td>
+                                <button class="btn-aprobar" data-id="${s.id}">Aprobar</button>
+                                <button class="btn-rechazar" data-id="${s.id}">Rechazar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            $('#solicitudes-body').html(html);
+
+        }, 'json');
+    }
+
+    //  Aprobar
+    $(document).on('click', '.btn-aprobar', function () {
+
+        if (!confirm('¿Aprobar esta solicitud?')) return;
+
+        const id = $(this).data('id');
+
+        $.post('index.php?page=aprobarSolicitud', { id_solicitud: id }, function (res) {
+
+            mostrarMensaje(res.success, res.message || res.error);
+            cargarSolicitudes();
+
+        }, 'json');
+    });
+
+    //  Rechazar
+    $(document).on('click', '.btn-rechazar', function () {
+
+        if (!confirm('¿Rechazar esta solicitud?')) return;
+
+        const id = $(this).data('id');
+
+        $.post('index.php?page=rechazarSolicitud', { id_solicitud: id }, function (res) {
+
+            mostrarMensaje(res.success, res.message || res.error);
+            cargarSolicitudes();
+
+        }, 'json');
+    });
+
+    //  Mostrar mensajes
+    function mostrarMensaje(success, mensaje) {
+        $('#mensaje')
+            .text(mensaje)
+            .css({
+                color: success ? 'green' : 'red',
+                fontWeight: 'bold'
+            })
+            .fadeIn()
+            .delay(2000)
+            .fadeOut();
+    }
+
+    //  Logout
+    $('#btnLogout').click(function () {
+        $.post('index.php?page=logout', function () {
+            window.location.href = 'index.php?page=login';
+        });
+    });
+
+});
+</script>
 </body>
 </html>

@@ -1,97 +1,83 @@
 <?php
+ob_start(); // 🔥 NUEVO
 session_start();
 
 require_once './app/controllers/UserController.php';
 require_once './app/controllers/TallerController.php';
 require_once './app/controllers/AdminController.php';
-require_once './app/models/Taller.php';
-require_once './app/models/Solicitud.php';
-require_once './app/models/User.php';
 
+// ================== ROUTER ==================
 $page = $_GET['page'] ?? 'login';
 
-// ========== RUTAS GET OBTENER DATOS ==========
+// ========== RUTAS AJAX (GET) ==========
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    // Obtener listado de talleres
-    if ($_GET['option'] ?? "" == "talleres_json") {
+    if ($page === 'talleres_json') {
         $taller = new TallerController();
         $taller->getTalleresJson();
         exit;
     }
 
-    // Obtener solicitudes pendientes
-    if ($_GET['option'] ?? "" == "solicitudes_json") {
+    if ($page === 'obtenerSolicitudes') {
         $admin = new AdminController();
-        //$admin->getSolicitudesJson();
+        $admin->getSolicitudes();
         exit;
     }
 }
 
-// ========== RUTAS FORMULARIO POST ==========
+// ========== RUTAS AJAX (POST) ==========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if ($_POST['option'] == "login") {
-        $auth = new UserController();
-        $auth->login();
+    if ($page === 'login') {
+        (new UserController())->login();
         exit;
     }
 
-    if ($_POST['option'] == "register") {
-        $auth = new UserController();
-        $auth->registro();
+    if ($page === 'register') {
+        (new UserController())->registro();
         exit;
     }
 
-    if ($_POST['option'] == "logout") {
-        $auth = new UserController();
-        $auth->logout();
+    if ($page === 'logout') {
+        (new UserController())->logout();
         exit;
     }
 
-    if ($_POST['option'] == "solicitar") {
-        $taller = new TallerController();
-        $taller->solicitar();
+    if ($page === 'solicitar') {
+        (new TallerController())->solicitar();
         exit;
     }
 
-    if ($_POST['option'] == "aprobar") {
-        $admin = new AdminController();
-        $admin->aprobar();
+    if ($page === 'aprobarSolicitud') {
+        (new AdminController())->aprobar();
         exit;
     }
 
-    if ($_POST['option'] == "rechazar") {
-        $admin = new AdminController();
-        $admin->rechazar();
+    if ($page === 'rechazarSolicitud') {
+        (new AdminController())->rechazar();
         exit;
     }
 }
 
-// ========== RUTAS DE VISTAS ==========
+// ========== VISTAS ==========
 switch ($page) {
 
     case "talleres":
-        $taller = new TallerController();
-        $taller->index();
+        (new TallerController())->index();
         break;
 
     case "admin":
-        $admin = new AdminController();
-        $admin->solicitudes();
+        (new AdminController())->solicitudes();
         break;
 
-    case "logout":
-        $auth = new UserController();
-        $auth->logout();
-        break;
     case "registro":
-        $auth = new UserController();
-        $auth->showRegistro();
+        (new UserController())->showRegistro();
         break;
+
     case "login":
     default:
-        $auth = new UserController();
-        $auth->showLogin();
+        (new UserController())->showLogin();
         break;
 }
+
+ob_end_flush(); // 🔥 NUEVO

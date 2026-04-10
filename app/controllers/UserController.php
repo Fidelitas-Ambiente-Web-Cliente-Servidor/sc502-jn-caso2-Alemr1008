@@ -27,20 +27,31 @@ class UserController
 
     public function login()
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+    header('Content-Type: application/json'); // IMPORTANTE
 
-        $user = $this->model->login($username);
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['id'] = $user['id'];
-            $_SESSION['user'] = $user['username'];
-            $_SESSION['rol'] = $user['rol'];
+    $user = $this->model->login($username);
 
-            echo json_encode(['response' => "00", 'rol' => $user['rol'], 'message' => "Login exitoso"]);
-        } else {
-            echo json_encode(['response' => "01", 'message' => "Error de autentificacion"]);
-        }
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['id'] = $user['id'];
+        $_SESSION['user'] = $user['username'];
+        $_SESSION['rol'] = $user['rol'];
+
+        echo json_encode([
+            'response' => "00",
+            'rol' => $user['rol'],
+            'message' => "Login exitoso"
+        ]);
+    } else {
+        echo json_encode([
+            'response' => "01",
+            'message' => "Error de autenticacion"
+        ]);
+    }
+
+    exit; // MUY IMPORTANTE
     }
 
     public function registro()
